@@ -1,0 +1,9 @@
+.idea
+.vscode
+**/logs
+*.log
+file_writer/.DS_Store
+.DS_Store
+logs
+._.DS_Store
+tests
