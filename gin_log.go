@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -16,12 +15,11 @@ import (
 	"go.uber.org/zap"
 )
 
-//RequestLog 输入及输出打印
+// RequestLog 输入及输出打印
 func RequestLog() gin.HandlerFunc {
 	return func(g *gin.Context) {
 		traceID := g.Request.Header.Get("X-Request-Id")
 		if len(traceID) == 0 {
-			// TODO if you call EnableRandPool, performance will improve 20~30%. see preference gin_log_test.go
 			traceID = uuid.NewString()
 		}
 		ctx := context.WithValue(g.Request.Context(), TraceID, traceID)
@@ -50,8 +48,6 @@ func RequestLog() gin.HandlerFunc {
 		g.Next()
 
 		// 打印处理日志
-		sendTimeStr := g.Request.Header.Get("send-time")
-		sendTimeInt64, _ := strconv.ParseInt(sendTimeStr, 10, 64)
 
 		nowTimestamp := startTime.UnixNano() / 1e6
 		InfoZ(ctx, "user request logged",
@@ -63,8 +59,6 @@ func RequestLog() gin.HandlerFunc {
 			zap.String("request_path", path),
 			zap.String("request_query_params", queryParams),
 			zap.String("from_service_name", g.Request.Header.Get("X-Service-Name")),
-			zap.String("app_send_time", sendTimeStr),
-			zap.Int64("app_to_latency", nowTimestamp-sendTimeInt64), // C端用户时间与系统时间有差异，仅供参考
 			zap.ByteString("request_body", bodyBytes),
 			zap.Int64("response_time", time.Now().UnixNano()/1e6),
 			zap.Duration("elapsed", time.Since(startTime)),
@@ -79,13 +73,15 @@ type GinWithCtxHandlerFunc func(context.Context, *gin.Context)
 
 // GinWithCtxHandler handler support context
 // example:
-// func router() {
-//    engine := gin.Default()
-//    v1 := engine.Group("/v1")
-//    {
-//    		v1.POST("/test",  GinWithCtxHandler(TestHandler))
-//    }
-// }
+//
+//	func router() {
+//	   engine := gin.Default()
+//	   v1 := engine.Group("/v1")
+//	   {
+//	   		v1.POST("/test",  GinWithCtxHandler(TestHandler))
+//	   }
+//	}
+//
 // func TestHandler(ctx context.Context, g *gin.Context) {
 //
 // }

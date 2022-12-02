@@ -10,7 +10,7 @@ import (
 )
 
 func TestUnaryClientLogTraceInterceptor(t *testing.T) {
-	InitLogger("testgrpc", true, "DEBUG", "json", OnlyOutputStdout)
+	InitLogger("testgrpc", true, "DEBUG", OnlyOutputStdout)
 	ctx := context.WithValue(context.Background(), TraceID, "test")
 	err := UnaryClientLogTraceInterceptorWarpper("test")(ctx, "POST", nil, nil, nil, func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, opts ...grpc.CallOption) error {
 		assert.Equal(t, "test", ctx.Value(TraceID))
@@ -26,7 +26,7 @@ func TestUnaryClientLogTraceInterceptor(t *testing.T) {
 }
 
 func TestUnaryServerLogTraceInterceptor(t *testing.T) {
-	InitLogger("testgrpc", true, "DEBUG", "json", OnlyOutputStdout)
+	InitLogger("testgrpc", true, "DEBUG", OnlyOutputStdout)
 	ctx := metadata.NewIncomingContext(context.Background(), metadata.MD{string(TraceID): []string{"test"}, "from_service_name": []string{"demo"}})
 
 	_, err := UnaryServerLogTraceInterceptor(ctx, nil, nil, func(ctx context.Context, req interface{}) (interface{}, error) {
