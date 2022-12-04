@@ -55,6 +55,8 @@ func InitLogger(componentName string, disableStacktrace bool, runMode string, ou
 	InitLoggerWithSample(componentName, disableStacktrace, runMode, "json", outputType, nil, fileName...)
 }
 
+var globalComponentName string
+
 func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode string, encoderName string, outputType LogOutputType, samplingConfig *zap.SamplingConfig, fileName ...string) {
 	var err error
 	// reset logger
@@ -85,6 +87,7 @@ func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode 
 			Thereafter: 100,
 		}
 	}
+	globalComponentName = componentName
 	cfg := zap.Config{
 		Level:             atomicZapLeveler,
 		Development:       dev,

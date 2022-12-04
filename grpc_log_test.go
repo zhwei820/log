@@ -12,13 +12,13 @@ import (
 func TestUnaryClientLogTraceInterceptor(t *testing.T) {
 	InitLogger("testgrpc", true, "DEBUG", OnlyOutputStdout)
 	ctx := context.WithValue(context.Background(), TraceID, "test")
-	err := UnaryClientLogTraceInterceptorWarpper("test")(ctx, "POST", nil, nil, nil, func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, opts ...grpc.CallOption) error {
+	err := UnaryClientLogTraceInterceptor(ctx, "POST", nil, nil, nil, func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, opts ...grpc.CallOption) error {
 		assert.Equal(t, "test", ctx.Value(TraceID))
 		return nil
 	})
 	assert.Nil(t, err)
 	ctx = context.Background()
-	err = UnaryClientLogTraceInterceptorWarpper("test")(ctx, "POST", nil, nil, nil, func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, opts ...grpc.CallOption) error {
+	err = UnaryClientLogTraceInterceptor(ctx, "POST", nil, nil, nil, func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, opts ...grpc.CallOption) error {
 		assert.NotEqual(t, "test", ctx.Value(TraceID))
 		return nil
 	})
