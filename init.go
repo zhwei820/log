@@ -117,7 +117,7 @@ func initLogOutput(outputType LogOutputType, runMode string, componentName strin
 		errorOutputPaths = append(errorOutputPaths, "lumberjack:test.log")
 		zap.RegisterSink("lumberjack", func(u *url.URL) (zap.Sink, error) {
 			return lumberjackSink{
-				Logger: lumlog,
+				Roller: lumlog,
 			}, nil
 		})
 	}

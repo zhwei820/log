@@ -7,13 +7,13 @@ import (
 	"sync"
 	"time"
 
-	"gopkg.in/natefinch/lumberjack.v2"
+	"github.com/natefinch/lumberjack/v3"
 )
 
-var lumlog *lumberjack.Logger
+var lumlog *lumberjack.Roller
 
 type lumberjackSink struct {
-	*lumberjack.Logger
+	*lumberjack.Roller
 }
 
 var onceLum = &sync.Once{}
@@ -33,16 +33,14 @@ func initFileLogger(runMode string, componentName string, fileName ...string) {
 		fileNameStr = "/dev/null" // dev / test 环境日志输入到/dev/null 不支持windows
 	}
 	onceLum.Do(func() {
-		lumlog = &lumberjack.Logger{
-			Filename:  fileNameStr,
-			MaxSize:   100, // megabytes
-			LocalTime: true,
-			// MaxBackups: 30, // number of log files // 由运维来处理日志清理
-			// MaxAge:     15, // days
-		}
+		lumlog, _ = lumberjack.NewRoller(
+			fileNameStr,
+			100,
+			&lumberjack.Options{},
+		)
 		go func() {
 			var hourSec int64 = 3600
-			leftTs := hourSec - time.Now().Unix()%hourSec -1 // rotate at 59 sec
+			leftTs := hourSec - time.Now().Unix()%hourSec - 1 // rotate at 59 sec
 			timer := time.NewTimer(time.Duration(leftTs) * time.Second)
 			for range timer.C {
 				if err := lumlog.Rotate(); err != nil {
