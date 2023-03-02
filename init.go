@@ -37,6 +37,13 @@ const (
 	EnvProd    = "PROD"
 	EnvRelease = "RELEASE"
 
+	RunModeDebug   = EnvDebug
+	RunModeDev     = EnvDev
+	RunModeTest    = EnvTest
+	RunModePre     = EnvPre
+	RunModeProd    = EnvProd
+	RunModeRelease = EnvRelease
+
 	timeFormat = "2006-01-02 15:04:05.000 MST"
 
 	OnlyOutputLog    LogOutputType = 1
