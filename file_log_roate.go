@@ -3,7 +3,6 @@ package log
 import (
 	"context"
 	"os"
-	"runtime"
 	"sync"
 	"time"
 
@@ -29,9 +28,6 @@ func initFileLogger(runMode RunModeType, componentName string, fileName ...strin
 		fileNameStr = fileName[0]
 	}
 
-	if (runMode == RunModeDev || runMode == RunModeTest) && runtime.GOOS != "windows" {
-		fileNameStr = "/dev/null" // dev / test 环境日志输入到/dev/null 不支持windows
-	}
 	onceLum.Do(func() {
 		lumlog, _ = lumberjack.NewRoller(
 			fileNameStr,
