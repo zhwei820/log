@@ -23,7 +23,9 @@ func RequestLog() gin.HandlerFunc {
 			traceID = uuid.NewString()
 		}
 		ctx := context.WithValue(g.Request.Context(), TraceID, traceID)
-		g.Set(string(TraceID), ctx)
+
+		g.Request = g.Request.WithContext(ctx)
+
 		defer ginRecover(ctx, g)
 
 		// 打印处理日志
@@ -65,30 +67,6 @@ func RequestLog() gin.HandlerFunc {
 			zap.Int("response_http_status", g.Writer.Status()),
 			zap.Int("response_size", g.Writer.Size()),
 		)
-	}
-}
-
-// GinWithCtxHandlerFunc defines the handler used by with context handler
-type GinWithCtxHandlerFunc func(context.Context, *gin.Context)
-
-// GinWithCtxHandler handler support context
-// example:
-//
-//	func router() {
-//	   engine := gin.Default()
-//	   v1 := engine.Group("/v1")
-//	   {
-//	   		v1.POST("/test",  GinWithCtxHandler(TestHandler))
-//	   }
-//	}
-//
-// func TestHandler(ctx context.Context, g *gin.Context) {
-//
-// }
-func GinWithCtxHandler(f GinWithCtxHandlerFunc) gin.HandlerFunc {
-	return func(g *gin.Context) {
-		ctx := g.MustGet(string(TraceID)).(context.Context)
-		f(ctx, g)
 	}
 }
 
