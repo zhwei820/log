@@ -22,14 +22,14 @@ var onceLum = &sync.Once{}
 // by the embedded *lumberjack.Logger.
 func (lumberjackSink) Sync() error { return nil }
 
-func initFileLogger(runMode EnvType, componentName string, fileName ...string) {
+func initFileLogger(runMode RunModeType, componentName string, fileName ...string) {
 	hostname, _ := os.Hostname()
 	fileNameStr := "logs/" + hostname + ".log"
 	if len(fileName) > 0 {
 		fileNameStr = fileName[0]
 	}
 
-	if (runMode == EnvDev || runMode == EnvTest) && runtime.GOOS != "windows" {
+	if (runMode == RunModeDev || runMode == RunModeTest) && runtime.GOOS != "windows" {
 		fileNameStr = "/dev/null" // dev / test 环境日志输入到/dev/null 不支持windows
 	}
 	onceLum.Do(func() {

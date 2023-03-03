@@ -15,7 +15,7 @@ const TraceID TraceIDType = "x-request-id"
 
 type LogOutputType uint8
 
-type EnvType string
+type RunModeType string
 
 const (
 	// StrLvlDebug debug level
@@ -30,12 +30,9 @@ const (
 	StrlvlCrit = "CRIT"
 
 	//运行环境
-	EnvDebug   EnvType = "DEBUG"
-	EnvDev     EnvType = "DEV"
-	EnvTest    EnvType = "TEST"
-	EnvPre     EnvType = "PRE"
-	EnvProd    EnvType = "PROD"
-	EnvRelease EnvType = "RELEASE"
+	RunModeDebug RunModeType = "DEBUG"
+	RunModeTest  RunModeType = "TEST"
+	RunModeProd  RunModeType = "PROD"
 
 	timeFormat = "2006-01-02 15:04:05.000 MST"
 
@@ -49,17 +46,17 @@ var (
 )
 
 // InitLogger
-func InitLogger(componentName string, disableStacktrace bool, runMode EnvType, outputType LogOutputType, fileName ...string) {
+func InitLogger(componentName string, disableStacktrace bool, runMode RunModeType, outputType LogOutputType, fileName ...string) {
 	InitLoggerWithSample(componentName, disableStacktrace, runMode, outputType, nil, fileName...)
 }
 
 var globalComponentName string
 
-func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode EnvType, outputType LogOutputType, samplingConfig *zap.SamplingConfig, fileName ...string) {
+func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode RunModeType, outputType LogOutputType, samplingConfig *zap.SamplingConfig, fileName ...string) {
 	var err error
 	// reset logger
 	Exit()
-	dev, zapLogLevel := runModeToEnv(runMode)
+	dev, zapLogLevel := runModeToLogLevel(runMode)
 	encodeCfg := zapcore.EncoderConfig{
 		TimeKey:       "ts",
 		LevelKey:      "log_level",
@@ -101,7 +98,7 @@ func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode 
 
 }
 
-func initLogOutput(outputType LogOutputType, runMode EnvType, componentName string, fileName ...string) (outputPaths []string, errorOutputPaths []string) {
+func initLogOutput(outputType LogOutputType, runMode RunModeType, componentName string, fileName ...string) (outputPaths []string, errorOutputPaths []string) {
 	if outputType&OnlyOutputLog == OnlyOutputLog {
 		initFileLogger(runMode, componentName, fileName...) //initFileLogger
 		outputPaths = append(outputPaths, "lumberjack:test.log")
@@ -149,12 +146,14 @@ func toZapLevel(levelStr string) zapcore.Level {
 	}
 }
 
-func runModeToEnv(runMode EnvType) (bool, zapcore.Level) {
+func runModeToLogLevel(runMode RunModeType) (bool, zapcore.Level) {
 	switch runMode {
-	case EnvDebug, EnvTest, EnvDev:
+	case RunModeDebug, RunModeTest:
 		return true, zapcore.DebugLevel
+	case RunModeProd:
+		return false, zapcore.InfoLevel
 	}
-	return false, zapcore.InfoLevel
+	panic("runMode must be DEBUG,TEST,PROD")
 }
 
 func genTraceIDZap(ctx context.Context) zap.Field {

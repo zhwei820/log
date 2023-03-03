@@ -23,7 +23,7 @@ func throwErr2() error {
 }
 
 func TestInitLogger(t *testing.T) {
-	InitLogger("risk", false, EnvTest, OnlyOutputStdout)
+	InitLogger("risk", false, RunModeTest, OnlyOutputStdout)
 	if logger == nil {
 		t.Error("init logger failed")
 	}
