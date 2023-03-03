@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -39,6 +41,25 @@ const (
 	OnlyOutputLog    LogOutputType = 1
 	OnlyOutputStdout LogOutputType = 2
 )
+
+/*
+	case DebugMode:
+	case ReleaseMode:
+	case TestMode:
+*/
+
+func (t RunModeType) ToGinRunMode() string {
+	switch t {
+	case RunModeDebug:
+		return gin.DebugMode
+	case RunModeTest:
+		return gin.DebugMode
+	case RunModeProd:
+		return gin.DebugMode
+	}
+	panic("")
+
+}
 
 var (
 	logger           *zap.Logger
