@@ -2,9 +2,7 @@ package log
 
 import (
 	"context"
-	"errors"
 	"net/url"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -16,6 +14,8 @@ type TraceIDType string
 const TraceID TraceIDType = "x-request-id"
 
 type LogOutputType uint8
+
+type EnvType string
 
 const (
 	// StrLvlDebug debug level
@@ -30,12 +30,12 @@ const (
 	StrlvlCrit = "CRIT"
 
 	//运行环境
-	EnvDebug   = "DEBUG"
-	EnvDev     = "DEV"
-	EnvTest    = "TEST"
-	EnvPre     = "PRE"
-	EnvProd    = "PROD"
-	EnvRelease = "RELEASE"
+	EnvDebug   EnvType = "DEBUG"
+	EnvDev     EnvType = "DEV"
+	EnvTest    EnvType = "TEST"
+	EnvPre     EnvType = "PRE"
+	EnvProd    EnvType = "PROD"
+	EnvRelease EnvType = "RELEASE"
 
 	timeFormat = "2006-01-02 15:04:05.000 MST"
 
@@ -44,26 +44,21 @@ const (
 )
 
 var (
-	logger            *zap.Logger
-	atomicZapLeveler  zap.AtomicLevel
-	ErrInvalidEncoder = errors.New("console encoder can only be used in dev and debug environment")
-	ErrInvalidEnv     = errors.New("invalid env")
+	logger           *zap.Logger
+	atomicZapLeveler zap.AtomicLevel
 )
 
 // InitLogger
-func InitLogger(componentName string, disableStacktrace bool, runMode string, outputType LogOutputType, fileName ...string) {
-	InitLoggerWithSample(componentName, disableStacktrace, runMode, "json", outputType, nil, fileName...)
+func InitLogger(componentName string, disableStacktrace bool, runMode EnvType, outputType LogOutputType, fileName ...string) {
+	InitLoggerWithSample(componentName, disableStacktrace, runMode, outputType, nil, fileName...)
 }
 
 var globalComponentName string
 
-func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode string, encoderName string, outputType LogOutputType, samplingConfig *zap.SamplingConfig, fileName ...string) {
+func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode EnvType, outputType LogOutputType, samplingConfig *zap.SamplingConfig, fileName ...string) {
 	var err error
 	// reset logger
 	Exit()
-	if runMode, err = FormatEnv(runMode); err != nil {
-		panic(err)
-	}
 	dev, zapLogLevel := runModeToEnv(runMode)
 	encodeCfg := zapcore.EncoderConfig{
 		TimeKey:       "ts",
@@ -93,16 +88,12 @@ func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode 
 		Development:       dev,
 		DisableCaller:     false,
 		DisableStacktrace: disableStacktrace,
-		Encoding:          encoderName, // json or console
+		Encoding:          "json", // json or console
 		EncoderConfig:     encodeCfg,
 		InitialFields:     map[string]interface{}{"component": componentName},
 		Sampling:          samplingConfig,
 	}
 	cfg.OutputPaths, cfg.ErrorOutputPaths = initLogOutput(outputType, runMode, componentName, fileName...)
-
-	if err = checkEncoder(runMode, cfg.Encoding); err != nil {
-		panic(err)
-	}
 
 	if logger, err = cfg.Build(zap.AddCallerSkip(1)); err != nil {
 		panic(err)
@@ -110,7 +101,7 @@ func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode 
 
 }
 
-func initLogOutput(outputType LogOutputType, runMode string, componentName string, fileName ...string) (outputPaths []string, errorOutputPaths []string) {
+func initLogOutput(outputType LogOutputType, runMode EnvType, componentName string, fileName ...string) (outputPaths []string, errorOutputPaths []string) {
 	if outputType&OnlyOutputLog == OnlyOutputLog {
 		initFileLogger(runMode, componentName, fileName...) //initFileLogger
 		outputPaths = append(outputPaths, "lumberjack:test.log")
@@ -140,19 +131,6 @@ func Exit() {
 
 }
 
-// FormatEnv 用于检查并格式化运行环境配置值
-func FormatEnv(env string) (nEnv string, err error) {
-	nEnv = strings.ToUpper(env)
-	switch nEnv {
-	case EnvDebug, EnvDev, EnvTest, EnvPre, EnvProd, EnvRelease:
-		return
-	default:
-		err = ErrInvalidEnv
-	}
-
-	return
-}
-
 func toZapLevel(levelStr string) zapcore.Level {
 	switch levelStr {
 	case StrLvlDebug:
@@ -171,21 +149,12 @@ func toZapLevel(levelStr string) zapcore.Level {
 	}
 }
 
-func runModeToEnv(runMode string) (bool, zapcore.Level) {
-	runMode = strings.ToUpper(runMode)
+func runModeToEnv(runMode EnvType) (bool, zapcore.Level) {
 	switch runMode {
 	case EnvDebug, EnvTest, EnvDev:
 		return true, zapcore.DebugLevel
 	}
 	return false, zapcore.InfoLevel
-}
-
-// checkEncoder 用于检查编码器是否适配当前运行环境
-func checkEncoder(env string, encoder string) (err error) {
-	if (env != EnvDev && env != EnvDebug) && encoder != "json" {
-		err = ErrInvalidEncoder
-	}
-	return
 }
 
 func genTraceIDZap(ctx context.Context) zap.Field {

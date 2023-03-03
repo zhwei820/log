@@ -22,7 +22,7 @@ var onceLum = &sync.Once{}
 // by the embedded *lumberjack.Logger.
 func (lumberjackSink) Sync() error { return nil }
 
-func initFileLogger(runMode string, componentName string, fileName ...string) {
+func initFileLogger(runMode EnvType, componentName string, fileName ...string) {
 	hostname, _ := os.Hostname()
 	fileNameStr := "logs/" + hostname + ".log"
 	if len(fileName) > 0 {

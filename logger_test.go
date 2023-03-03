@@ -22,13 +22,6 @@ func throwErr2() error {
 	return err
 }
 
-func TestFormatEnv(t *testing.T) {
-	_, err := FormatEnv("info")
-	if err == ErrInvalidEnv {
-		t.Log("ok, get ErrInvalidEnv")
-	}
-}
-
 func TestInitLogger(t *testing.T) {
 	InitLogger("risk", false, EnvTest, OnlyOutputStdout)
 	if logger == nil {
