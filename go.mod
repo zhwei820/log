@@ -11,7 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.2
 	github.com/zhwei820/gconv v0.0.4
-	github.com/zhwei820/sentry-grpc v0.0.0-20230304140953-7db424a3b0ce
+	github.com/zhwei820/sentry-grpc v0.0.0-20230304144202-26b45dc07671
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.53.0
 )
