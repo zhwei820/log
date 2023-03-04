@@ -31,7 +31,7 @@ func initFileLogger(runMode RunModeType, componentName string, fileName ...strin
 	onceLum.Do(func() {
 		lumlog, _ = lumberjack.NewRoller(
 			fileNameStr,
-			100,
+			100000,
 			&lumberjack.Options{},
 		)
 		go func() {

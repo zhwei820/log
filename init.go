@@ -2,9 +2,12 @@ package log
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"net/url"
 	"time"
 
+	"github.com/TheZeroSlave/zapsentry"
 	"github.com/gin-gonic/gin"
 
 	"go.uber.org/zap"
@@ -68,12 +71,17 @@ var (
 
 // InitLogger
 func InitLogger(componentName string, disableStacktrace bool, runMode RunModeType, outputType LogOutputType, fileName ...string) {
-	InitLoggerWithSample(componentName, disableStacktrace, runMode, outputType, nil, fileName...)
+	InitLoggerWithSample(componentName, disableStacktrace, runMode, outputType, "", nil, fileName...)
+}
+
+// InitLogger
+func InitSentryLogger(componentName string, disableStacktrace bool, runMode RunModeType, outputType LogOutputType, sentryDsn string, fileName ...string) {
+	InitLoggerWithSample(componentName, disableStacktrace, runMode, outputType, sentryDsn, nil, fileName...)
 }
 
 var globalComponentName string
 
-func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode RunModeType, outputType LogOutputType, samplingConfig *zap.SamplingConfig, fileName ...string) {
+func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode RunModeType, outputType LogOutputType, sentryDsn string, samplingConfig *zap.SamplingConfig, fileName ...string) {
 	var err error
 	// reset logger
 	Exit()
@@ -116,7 +124,24 @@ func InitLoggerWithSample(componentName string, disableStacktrace bool, runMode 
 	if logger, err = cfg.Build(zap.AddCallerSkip(1)); err != nil {
 		panic(err)
 	}
+	if sentryDsn != "" {
+		fmt.Println("===>sentryDsn", sentryDsn)
+		sentryClient := SentryClient(sentryDsn)
 
+		// Setup zapsentry
+		core, err := zapsentry.NewCore(zapsentry.Configuration{
+			Level: zapcore.ErrorLevel, // when to send message to sentry
+			// EnableBreadcrumbs: true,               // enable sending breadcrumbs to Sentry
+			BreadcrumbLevel: zapcore.ErrorLevel, // at what level should we sent breadcrumbs to sentry
+			Tags: map[string]string{
+				"component": "system",
+			},
+		}, zapsentry.NewSentryClientFromClient(sentryClient))
+		if err != nil {
+			log.Fatal(err)
+		}
+		logger = zapsentry.AttachCoreToLogger(core, logger)
+	}
 }
 
 func initLogOutput(outputType LogOutputType, runMode RunModeType, componentName string, fileName ...string) (outputPaths []string, errorOutputPaths []string) {
