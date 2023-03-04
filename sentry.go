@@ -37,6 +37,12 @@ func (f *transport) SendEvent(event *sentry.Event) {
 	DebugZ(ctx, "sentryclient.SendEvent start")
 
 	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				WarnZ(ctx, "SendEvent unknown err", zap.Reflect("error", err))
+			}
+		}()
+
 		req := sentryclient.FromSentryEvent(event, globalComponentName)
 		if _, err := f.sentryclient.SendEvent(ctx, req); err != nil {
 			WarnZ(ctx, "sentryclient.SendEvent failed", zap.Error(err))
