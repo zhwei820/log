@@ -34,7 +34,7 @@ func (f *transport) Configure(_ sentry.ClientOptions) {}
 // We use this method to capture the event for testing
 func (f *transport) SendEvent(event *sentry.Event) {
 	ctx := context.Background()
-	DebugZ(ctx, "sentryclient.SendEvent start")
+	DebugZ(ctx, "==>sentryclient.SendEvent start", zap.Reflect("event", event))
 
 	go func() {
 		defer func() {

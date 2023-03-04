@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 	"time"
+	"gitee.com/spwx/errors"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -15,7 +16,7 @@ func TestInitSentryLogger(t *testing.T) {
 	ctx := context.WithValue(context.Background(), TraceID, uuid.NewString())
 
 	for ii := 0; ii < 3; ii++ {
-		ErrorZ(ctx, "info test", zap.String("test", "info"), zap.Int("int", 100), zap.Any("out", map[string]interface{}{"df": 34, "aa": "b"}))
+		ErrorZ(ctx, "info test", zap.String("test", "info"), zap.Int("int", 100), zap.Any("out", map[string]interface{}{"df": 34, "aa": "b"}), zap.Error(errors.Errorf("test")))
 	}
 	time.Sleep(3 * time.Second)
 }

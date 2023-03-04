@@ -160,6 +160,8 @@ github.com/zhwei820/sentry-grpc v0.0.0-20230304151911-330f606b15fb h1:5WRrbESPpS
 github.com/zhwei820/sentry-grpc v0.0.0-20230304151911-330f606b15fb/go.mod h1:qxc5nYUtjatQHJOkl3w+U0MSqvYczj8n0MNtz6zt8pU=
 github.com/zhwei820/sentry-grpc v0.0.0-20230304152103-28dda841ec65 h1:/EkgmqXTeTHsta4frzAa1daxuCfa+DIp6pfIiP8Q/0U=
 github.com/zhwei820/sentry-grpc v0.0.0-20230304152103-28dda841ec65/go.mod h1:qxc5nYUtjatQHJOkl3w+U0MSqvYczj8n0MNtz6zt8pU=
+github.com/zhwei820/sentry-grpc v0.0.0-20230304163756-2c5a4416f6c9 h1:jLyfH5PUqhL1C11DdPnOn/Ub4Ed6x9MwF9wrxGyp+Z8=
+github.com/zhwei820/sentry-grpc v0.0.0-20230304163756-2c5a4416f6c9/go.mod h1:qxc5nYUtjatQHJOkl3w+U0MSqvYczj8n0MNtz6zt8pU=
 go.opentelemetry.io/proto/otlp v0.7.0/go.mod h1:PqfVotwruBrMGOCsRd/89rSnXhoiJIqeYNgFYFoEGnI=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/atomic v1.10.0 h1:9qC72Qh0+3MqyJbAn8YU5xVq1frD8bn3JtD2oXtafVQ=
