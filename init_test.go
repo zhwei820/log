@@ -4,7 +4,8 @@ import (
 	"context"
 	"testing"
 	"time"
-	"gitee.com/spwx/errors"
+
+	"github.com/zhwei820/errors"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
