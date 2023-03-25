@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -48,6 +49,8 @@ func UnaryServerLogTraceInterceptor(ctx context.Context, req interface{}, _ *grp
 	if ok {
 		if requestIDs := md.Get(string(TraceID)); len(requestIDs) > 0 {
 			ctx = context.WithValue(ctx, TraceID, requestIDs[0])
+		} else {
+			ctx = context.WithValue(ctx, TraceID, uuid.NewString())
 		}
 
 		if values := md.Get("from_service_name"); len(values) > 0 {
@@ -57,6 +60,6 @@ func UnaryServerLogTraceInterceptor(ctx context.Context, req interface{}, _ *grp
 	startTime := time.Now()
 	InfoZ(ctx, "grpc server handle begin", zap.Reflect("grpc_req", req), zap.Time("handle_start_time", startTime))
 	result, err := handler(ctx, req)
-	InfoZ(ctx, "grpc server handle request", zap.Duration("elapsed", time.Since(startTime)), zap.Error(err), zap.Reflect("grpc_req", req), zap.Reflect("from_service_name", fromServiceName))
+	InfoZ(ctx, "grpc server handle request end", zap.Duration("elapsed", time.Since(startTime)), zap.Error(err), zap.Reflect("grpc_req", req), zap.Reflect("from_service_name", fromServiceName))
 	return result, err
 }
