@@ -34,24 +34,3 @@ func DebugZ(ctx context.Context, msg string, fields ...zap.Field) {
 	fields = append(fields, genTraceIDZap(ctx))
 	logger.Debug(msg, fields...)
 }
-
-// =================================================================
-func Error(msg string, fields ...zap.Field) {
-	fields = append(fields)
-	logger.Error(msg, fields...)
-}
-
-func Warn(msg string, fields ...zap.Field) {
-	fields = append(fields)
-	logger.Warn(msg, fields...)
-}
-
-func Info(msg string, fields ...zap.Field) {
-	fields = append(fields)
-	logger.Info(msg, fields...)
-}
-
-func Debug(msg string, fields ...zap.Field) {
-	fields = append(fields)
-	logger.Debug(msg, fields...)
-}
